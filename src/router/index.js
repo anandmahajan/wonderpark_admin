@@ -180,6 +180,126 @@ let router = new Router({
               { name: messages.dashboard }
             ]
           }
+        },
+        {
+          path: "/customer",
+          name: "Customer",
+          component: () => import("@/views/Customers/customer"),
+          meta: {
+            title: messages.manage_customer,
+            breadcrumb: [
+              { name: messages.manage_customer },
+              { name: messages.manage_customer }
+            ]
+          }
+        },
+        {
+          path: "/add-customer",
+          name: "AddCustomer",
+          component: () => import("@/views/Customers/addEditCustomer"),
+          meta: {
+            title: messages.add_customer,
+            breadcrumb: [
+              { name: messages.add_customer },
+              { name: messages.add_customer }
+            ]
+          }
+        },
+        {
+          path: "/edit-customer",
+          name: "EditCustomer",
+          component: () => import("@/views/Customers/addEditCustomer"),
+          meta: {
+            title: messages.edit_customer,
+            breadcrumb: [
+              { name: messages.edit_customer },
+              { name: messages.edit_customer }
+            ]
+          }
+        },
+        {
+          path: "/product",
+          name: "Product",
+          component: () => import("@/views/Products/product"),
+          meta: {
+            title: messages.manage_product,
+            breadcrumb: [
+              { name: messages.manage_product },
+              { name: messages.manage_product }
+            ]
+          }
+        },
+        {
+          path: "/add-product",
+          name: "AddProduct",
+          component: () => import("@/views/Products/addProduct"),
+          meta: {
+            title: messages.add_product,
+            breadcrumb: [
+              { name: messages.add_product },
+              { name: messages.add_product }
+            ]
+          }
+        },
+        {
+          path: "/edit-product/:uuid",
+          name: "EditProduct",
+          component: () => import("@/views/Products/addProduct"),
+          meta: {
+            title: messages.edit_product,
+            breadcrumb: [
+              { name: messages.edit_product },
+              { name: messages.edit_product }
+            ]
+          }
+        },
+        {
+          path: "/order",
+          name: "Order",
+          component: () => import("@/views/Orders/order"),
+          meta: {
+            title: messages.manage_order,
+            breadcrumb: [
+              { name: messages.manage_order },
+              { name: messages.manage_order }
+            ]
+          }
+        },
+        {
+          path: "/voucher",
+          name: "Voucher",
+          component: () => import("@/views/Vouchers/voucher"),
+          meta: {
+            title: messages.manage_voucher,
+            breadcrumb: [
+              { name: messages.manage_voucher },
+              { name: messages.manage_voucher }
+            ]
+          }
+        },
+        {
+          path: "/add-voucher",
+          name: "Voucher",
+          component: () => import("@/views/Vouchers/addEditVoucher"),
+          meta: {
+            title: messages.add_voucher,
+            breadcrumb: [
+              { name: messages.add_voucher },
+              { name: messages.add_voucher }
+            ]
+          }
+        },
+        {
+          path: "/edit-voucher/:uuid",
+          name: "Voucher",
+          component: () => import("@/views/Vouchers/addEditVoucher"),
+          meta: {
+            title: messages.edit_voucher,
+            breadcrumb: [
+              { name: messages.edit_voucher },
+              { name: messages.edit_voucher }
+            ]
+          }
         }
       ]
     }

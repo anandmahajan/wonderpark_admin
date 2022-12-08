@@ -18,15 +18,15 @@
         <div class="row row-xs">
           <div class="col-6 mb-3">
             <div class="card card-body pd-10 pd-md-15 bd-0 shadow-none bg-primary-light">
-              <p class="tx-13 tx-lg-14 tx-color-02 mg-b-0">Total Consumer</p>
+              <p class="tx-13 tx-lg-14 tx-color-02 mg-b-0">Total Customers</p>
               <h1 class="tx-light tx-sans tx-spacing--4 tx-primary mg-b-5">
-                {{ total_consumer }}
+                {{ total_customer }}
               </h1>
             </div>
           </div>
           <div class="col-6 mb-3">
             <div class="card card-body pd-10 pd-md-15 bd-0 shadow-none bg-pink-light">
-              <p class="tx-13 tx-lg-14 tx-color-03 mg-b-0">Total Category</p>
+              <p class="tx-13 tx-lg-14 tx-color-03 mg-b-0">Total Categories</p>
               <h1 class="mg-b-5 tx-sans tx-spacing--2 tx-light tx-pink">
                 {{ total_category }}
               </h1>
@@ -34,7 +34,7 @@
           </div>
           <div class="col-6 mb-3">
             <div class="card card-body pd-10 pd-md-15 bd-0 shadow-none bg-teal-light">
-              <p class="tx-13 tx-lg-14 tx-color-03 mg-b-0">Total Product</p>
+              <p class="tx-13 tx-lg-14 tx-color-03 mg-b-0">Total Products</p>
               <h1 class="mg-b-5 tx-sans tx-spacing--2 tx-light tx-teal">
                 {{ total_product }}
               </h1>
@@ -43,7 +43,7 @@
 
           <div class="col-6 mb-3">
             <div class="card card-body pd-10 pd-md-15 bd-0 shadow-none bg-info-light">
-              <p class="tx-13 tx-lg-14 tx-color-03 mg-b-0">Total Order</p>
+              <p class="tx-13 tx-lg-14 tx-color-03 mg-b-0">Total Orders</p>
               <h1 class="mg-b-5 tx-sans tx-spacing--2 tx-light tx-indigo">
                 {{ total_order }}
               </h1>
@@ -67,41 +67,28 @@ export default {
   data() {
     return {
       item: {},
-      total_consumer: 0,
+      total_customer: 0,
       total_category: 0,
       total_product: 0,
       total_order: 0,
-
-      date: {
-        startDate: "",
-        endDate: "",
-      },
       filterObj: {},
     };
   },
   methods: {
-    gotoPage(type) {
-      if (type == "VERIFIED_BUSINESS") {
-        this.$shareService.setMapValue("business_is_verified", "1");
-        router.push("/business");
-      } else if (type == "AWAITING_VERIFCATION") {
-        this.$shareService.setMapValue("business_is_verified", "0");
-        router.push("/business");
-      } else if (type == "EXPIRED_SUBS") {
-        this.$shareService.setMapValue("user_subscription_status", "EXPIRED");
-        router.push("/user_subscription");
-      }
-    },
     getDashboard() {
-      this.filterObj.to_date = moment(String(this.date.endDate)).format("Y-MM-DD");
-
-      this.filterObj.from_date = moment(String(this.date.startDate)).format("Y-MM-DD");
       this.$api
         .getAPI({
-          _action: "/dashboard",
+          _action: "dashboard",
           _body: this.filterObj,
         })
-        .then((res) => {})
+        .then((res) => {
+          if (res.info) {
+            this.total_customer = res.info.total_customer;
+            this.total_category = res.info.total_category;
+            this.total_product = res.info.total_product;
+            this.total_order = res.info.total_order;
+          }
+        })
         .catch((e) => {
           this.$noty.error("" + e.message, {
             timeout: 2000,
@@ -112,10 +99,7 @@ export default {
     },
   },
   mounted() {
-    var currentDate = new Date();
-    this.date.startDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), -6);
-    this.date.endDate = currentDate;
-    // this.getDashboard();
+    this.getDashboard();
   },
 };
 </script>

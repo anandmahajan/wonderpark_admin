@@ -4,23 +4,29 @@
       <div class="component-section mt-2 mb-4">
         <div class="row mb-3">
           <div class="col-md-3">
-            <div>
-              <select
-                class="custom-select"
-                name="placeholder_pos"
-                v-model="filterObj.placeholder_pos"
-                placeholder="Banner Placeholder POS"
-                v-on:change="getList(1)"
-              >
-                <option value>Select Placement</option>
-                <option value="TOP">Top</option>
-                <option value="BOTTOM">Bottom</option>
-              </select>
+            <div class="search-form">
+              <input
+                type="text"
+                class="form-control"
+                v-model="filterObj.keyword"
+                v-bind:placeholder="$lang.messages.search_enter"
+                v-on:keyup.enter="getList(1)"
+              />
+              <div class="input-group-prepend">
+                <button
+                  class="btn bg-white"
+                  type="button"
+                  id="button-addon1"
+                  @click="getList(1)"
+                >
+                  <img src="/static/img/search.svg" width="15" />
+                </button>
+              </div>
             </div>
           </div>
           <div class="col-md-9 text-md-right">
-            <button type="button" class="btn btn-brand-01" @click="addbanner()">
-              + Add {{ $lang.messages.add_banner }}
+            <button type="button" class="btn btn-brand-01" @click="addVoucher()">
+              + {{ $lang.messages.add_voucher }}
             </button>
           </div>
         </div>
@@ -31,15 +37,21 @@
               <thead>
                 <tr>
                   <th scope="col">Sr. no.</th>
-                  <th scope="col">Banner</th>
-                  <th scope="col">Placement</th>
+                  <th scope="col">
+                    {{ $lang.messages.image }}
+                  </th>
+                  <th scope="col">
+                    {{ $lang.messages.discount }}
+                  </th>
+                  <th scope="col">
+                    {{ $lang.messages.voucher_type }}
+                  </th>
                   <th scope="col">{{ $lang.messages.action }}</th>
                 </tr>
               </thead>
               <tbody>
                 <tr v-for="(item, i) in list" :key="item.id">
                   <td>{{ (currentPage - 1) * itemsPerPage + i + 1 }}</td>
-
                   <td>
                     <img
                       :src="
@@ -48,23 +60,22 @@
                       width="100"
                     />
                   </td>
-                  <td>{{ item.placeholder_pos }}</td>
-
+                  <td>{{ item.discount }}</td>
+                  <td>{{ item.type }}</td>
                   <td>
                     <button
                       type="button"
                       class="btn btn-outline-info btn-sm"
-                      @click="editbanner(item.id)"
+                      @click="editVoucher(item.uuid)"
                     >
                       {{ $lang.messages.edit }}
                     </button>
-
                     <button
                       type="button"
                       class="btn btn-outline-danger btn-sm"
                       data-toggle="modal"
                       data-target="#Delete"
-                      @click="setId(item.id)"
+                      @click="setId(item.uuid)"
                     >
                       {{ $lang.messages.delete }}
                     </button>
@@ -85,7 +96,7 @@
             <Pagination
               @page-change="pageChange"
               @items-per-page-change="itemsPerPageChange"
-              ref="bannerPagination"
+              ref="AdminPagination"
             />
           </div>
         </div>
@@ -118,13 +129,14 @@
             </div>
           </div>
           <div class="modal-footer border-0 justify-content-center">
-            <button type="button" class="btn btn-brand-01" @click="deletebanner()">
-              Delete
+            <button type="button" class="btn btn-brand-01" @click="deleteAdmin()">
+              Save
             </button>
             <button
               type="button"
               data-dismiss="modal"
               class="btn btn-outline-primary"
+              hidden="true"
               id="delete-btn"
             >
               Cancel
@@ -139,13 +151,11 @@
 import router from "../../router";
 import Pagination from "@/components/Pagination";
 import ErrorComponent from "@/components/ErrorComponent";
-import Multiselect from "vue-multiselect";
 export default {
-  name: "City",
+  name: "Voucher",
   components: {
     Pagination,
     ErrorComponent,
-    Multiselect,
   },
   data() {
     return {
@@ -156,11 +166,11 @@ export default {
       filterObj: {
         keyword: "",
         offset: 1,
-        sort: "title",
+        sort: "name",
         order: "asc",
         row_per_page: 10,
-        placeholder_pos: "",
       },
+      delete_id: "",
     };
   },
   methods: {
@@ -168,40 +178,32 @@ export default {
       this.getList(page);
     },
     itemsPerPageChange() {
-      this.itemsPerPage = this.$refs.bannerPagination.itemsPerPage;
+      this.itemsPerPage = this.$refs.AdminPagination.itemsPerPage;
       this.getList(1);
     },
 
     retry() {
       this.getList(1);
     },
-    addbanner() {
+    addVoucher() {
       this.$shareService.setMapValue("action", "ADD");
-      this.$shareService.setMapValue("banner_search", this.filterObj.keyword);
-      this.$shareService.setMapValue("banner_page", this.currentPage);
-      router.push("/add-banner");
+      this.$shareService.setMapValue("voucher_search", this.filterObj.keyword);
+      this.$shareService.setMapValue("voucher_page", this.currentPage);
+      router.push("/add-voucher");
     },
-    editbanner(id) {
+    editVoucher(uuid) {
       this.$shareService.setMapValue("action", "EDIT");
-      this.$shareService.setMapValue("banner_search", this.filterObj.keyword);
-      this.$shareService.setMapValue("banner_page", this.currentPage);
-      router.push("/edit-banner/" + id);
+      this.$shareService.setMapValue("voucher_search", this.filterObj.keyword);
+      this.$shareService.setMapValue("voucher_page", this.currentPage);
+      router.push("/edit-voucher/" + uuid);
     },
-
-    viewbanner(id) {
-      this.$shareService.setMapValue("action", "EDIT");
-      this.$shareService.setMapValue("banner_search", this.filterObj.keyword);
-      this.$shareService.setMapValue("banner_page", this.currentPage);
-      router.push("/sub-banner/" + id);
+    setId(uuid) {
+      this.delete_id = uuid;
     },
-
-    setId(id) {
-      this.delete_id = id;
-    },
-    deletebanner() {
+    deleteAdmin() {
       this.$api
         .deleteAPI({
-          _action: "banner/" + this.delete_id,
+          _action: "voucher/" + this.delete_id,
         })
         .then((res) => {
           this.delete_id = "";
@@ -233,24 +235,25 @@ export default {
 
       this.$api
         .getAPI({
-          _action: "banners",
+          _action: "vouchers",
           _body: this.filterObj,
         })
         .then((res) => {
           this.list = res.list;
-          if (res.count != null && res.count > 0) {
-            if (this.$refs.bannerPagination) {
-              this.$refs.bannerPagination.setTotalCount(res.count);
-            }
-          } else {
-            if (this.$refs.bannerPagination) {
-              this.$refs.bannerPagination.setTotalCount(0);
+          if (page == 1) {
+            if (res.count != null && res.count > 0) {
+              if (this.$refs.AdminPagination) {
+                this.$refs.AdminPagination.setTotalCount(res.count);
+              }
+            } else {
+              if (this.$refs.AdminPagination) {
+                this.$refs.AdminPagination.setTotalCount(0);
+              }
             }
           }
-
           if (!res.list || res.list.length <= 0) {
             if (this.$refs.errorComponent) {
-              this.$refs.errorComponent.setTitle(this.$lang.messages.no_banner_found);
+              this.$refs.errorComponent.setTitle(this.$lang.messages.no_admins_found);
             }
           } else {
             if (this.$refs.errorComponent) {
@@ -259,8 +262,8 @@ export default {
               }
             }
           }
-          if (this.$refs.bannerPagination) {
-            this.$refs.bannerPagination.currentPage = this.currentPage;
+          if (this.$refs.AdminPagination) {
+            this.$refs.AdminPagination.currentPage = this.currentPage;
           }
         })
         .catch((e) => {
@@ -276,17 +279,18 @@ export default {
     },
   },
   mounted() {
-    if (this.$shareService.getMapValue("banner_search")) {
-      this.filterObj.keyword = this.$shareService.getMapValue("banner_search");
-      this.$shareService.deleteMapValue("banner_search");
+    this.admin_id = localStorage.getItem("admin_id");
+    if (this.$shareService.getMapValue("voucher_search")) {
+      this.filterObj.keyword = this.$shareService.getMapValue("voucher_search");
+      this.$shareService.deleteMapValue("voucher_search");
     }
 
-    var tabValue1 = this.$shareService.getMapValue("banner_page");
+    var tabValue1 = this.$shareService.getMapValue("voucher_page");
 
     setTimeout(() => {
       if (tabValue1 != null && tabValue1 != "") {
-        this.getList(this.$shareService.getMapValue("banner_page"));
-        this.$shareService.deleteMapValue("banner_page");
+        this.getList(this.$shareService.getMapValue("voucher_page"));
+        this.$shareService.deleteMapValue("voucher_page");
       } else {
         this.getList(1);
       }

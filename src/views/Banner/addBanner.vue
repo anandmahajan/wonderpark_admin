@@ -8,9 +8,33 @@
               <div class="card-body p-4 p-lg-5">
                 <div class="row form-style">
                   <div class="col-lg-6 mb-3">
+                    <label for> Placement</label>
+                    <span class="text-danger">*</span>
+                    <select
+                      class="custom-select"
+                      name="placeholder_pos"
+                      v-model="banner.placeholder_pos"
+                      v-validate="'required'"
+                      placeholder="Banner placeholder_pos"
+                      :class="{
+                        input: true,
+                        'is-info': errors.has('placeholder_pos'),
+                      }"
+                    >
+                      <option value>Select placement</option>
+                      <option value="TOP">Top</option>
+                      <option value="BOTTOM">Bottom</option>
+                    </select>
+                    <i v-show="errors.has('placeholder_pos')"></i>
+                    <span v-show="errors.has('placeholder_pos')" class="help is-info"
+                      >Please select placement</span
+                    >
+                  </div>
+                </div>
+                <div class="row form-style">
+                  <div class="col-lg-6 mb-3">
                     <label for>
                       {{ $lang.messages.url }}
-                      <span class="text-danger">*</span>
                     </label>
                     <input
                       name="url"
@@ -26,32 +50,6 @@
                     <span v-show="errors.has('url')" class="help is-info">{{
                       $lang.messages.please_enter_title
                     }}</span>
-                  </div>
-                </div>
-
-                <div class="row form-style">
-                  <div class="col-lg-6 mb-3">
-                    <label for> Banner Position</label>
-                    <span class="text-danger">*</span>
-                    <select
-                      class="custom-select"
-                      name="placeholder_pos"
-                      v-model="banner.placeholder_pos"
-                      v-validate="'required'"
-                      placeholder="Banner placeholder_pos"
-                      :class="{
-                        input: true,
-                        'is-info': errors.has('placeholder_pos'),
-                      }"
-                    >
-                      <option value>Select banner position</option>
-                      <option value="TOP">Top</option>
-                      <option value="BOTTOM">Bottom</option>
-                    </select>
-                    <i v-show="errors.has('placeholder_pos')"></i>
-                    <span v-show="errors.has('placeholder_pos')" class="help is-info"
-                      >Please select banner position</span
-                    >
                   </div>
                 </div>
 
