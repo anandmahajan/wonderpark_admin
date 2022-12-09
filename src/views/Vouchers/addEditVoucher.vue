@@ -275,7 +275,7 @@ export default {
         buy_points: "",
         description: "",
         discount_type: "PERCENTAGE",
-        type: "VISIT",
+        type: "CATEGORY",
         category_id: "",
         image: "",
       },
