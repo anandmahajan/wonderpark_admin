@@ -40,6 +40,25 @@
                 <div class="row form-style">
                   <div class="col-lg-6 mb-3">
                     <label for>
+                      {{ $lang.messages.voucher_title }}
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      name="title"
+                      v-model="voucher.title"
+                      v-validate="'required|max:250'"
+                      class="form-control"
+                      :class="{ input: true, 'is-info': errors.has('title') }"
+                      type="text"
+                      v-bind:placeholder="$lang.messages.voucher_title"
+                    />
+                    <i v-show="errors.has('title')"></i>
+                    <span v-show="errors.has('title')" class="help is-info">{{
+                      $lang.messages.please_enter_voucher_title
+                    }}</span>
+                  </div>
+                  <div class="col-lg-6 mb-3">
+                    <label for>
                       {{ $lang.messages.voucher_name }}
                       <span class="text-danger">*</span>
                     </label>
@@ -54,9 +73,12 @@
                     />
                     <i v-show="errors.has('buy_points')"></i>
                     <span v-show="errors.has('buy_points')" class="help is-info">{{
-                      $lang.messages.please_enter_voucher_name
+                      $lang.messages.please_enter_buy_points
                     }}</span>
                   </div>
+                </div>
+
+                <div class="row form-style">
                   <div class="col-lg-6 mb-3">
                     <label>Discount Type </label>
                     <div class="">
@@ -80,9 +102,6 @@
                       <span>FIXED</span>
                     </div>
                   </div>
-                </div>
-
-                <div class="row form-style">
                   <div class="col-lg-6 mb-3">
                     <label for>
                       {{ $lang.messages.discount_amount }}
@@ -121,14 +140,14 @@
                 </div>
                 <div class="row form-style">
                   <div class="col-lg-6 mb-3">
-                    <label> Type </label>
+                    <label>{{ $lang.messages.voucher_type }}</label>
                     <div class="">
                       <input
                         type="radio"
                         name="type"
                         style="width: 50px; height: 14px !important"
                         value="CATEGORY"
-                        id="CATEGORY"
+                        id="type2"
                         v-model="voucher.type"
                       />
                       <span>Product</span>
@@ -137,42 +156,104 @@
                         type="radio"
                         name="type"
                         value="VISIT"
-                        id="CATEGORY"
+                        id="type1"
                         v-model="voucher.type"
                       />
                       <span>VISIT</span>
                     </div>
                   </div>
-                  <div class="col-lg-6 mb-3" v-if="(voucher.type = 'CATEGORY')">
+                  <div class="col-lg-6 mb-3" v-if="voucher.type == 'CATEGORY'">
                     <label for> Category</label>
                     <span class="text-danger">*</span>
-                    <select
-                      class="custom-select"
+                    <multiselect
+                      class="mr-2"
+                      v-model="category_id"
+                      :options="cat_select_box"
+                      :placeholder="$lang.messages.select_category"
+                      label="title"
+                      track-by="id"
+                      :close-on-select="true"
+                      :clear-on-select="false"
+                      :multiple="true"
                       name="category_id"
-                      v-model="voucher.category_id"
+                      id="category_id"
                       v-validate="'required'"
-                      placeholder="category"
-                      :class="{
-                        input: true,
-                        'is-info': errors.has('category_id'),
-                      }"
-                    >
-                      <option value>Select Category</option>
-                      <option
-                        v-for="item in cat_select_box"
-                        :key="item.id"
-                        :value="item.id"
-                        :multiple="true"
-                        :close-on-select="false"
-                        :clear-on-select="false"
-                      >
-                        {{ item.title }}
-                      </option>
-                    </select>
+                    ></multiselect>
+
                     <i v-show="errors.has('category_id')"></i>
                     <span v-show="errors.has('category_id')" class="help is-info"
                       >Please select category</span
                     >
+                  </div>
+                </div>
+
+                <div class="row form-style">
+                  <div class="col-lg-4 mb-3">
+                    <label class="mr-3">
+                      Start Date
+                      <span class="text-danger">*</span>
+                    </label>
+                    <date-picker
+                      v-model="voucher.valid_from"
+                      format="DD-MM-YYYY"
+                      :class="{
+                        input: true,
+                        'is-info': errors.has('valid_from'),
+                      }"
+                      lang="en"
+                      name="valid_from"
+                      v-validate="'required'"
+                      :disabled-date="notBeforeDate"
+                      placeholder="Start Date"
+                      @change="checkEndate()"
+                    ></date-picker>
+                    <i v-show="errors.has('valid_from')"></i><br />
+                    <span v-show="errors.has('valid_from')" class="help is-info"
+                      >Please select start date</span
+                    >
+                  </div>
+                  <div class="col-lg-4 mb-3">
+                    <label class="mr-3">
+                      End Date
+                      <span class="text-danger">*</span>
+                    </label>
+                    <date-picker
+                      v-model="voucher.valid_to"
+                      format="DD-MM-YYYY"
+                      :class="{
+                        input: true,
+                        'is-info': errors.has('valid_to'),
+                      }"
+                      lang="en"
+                      name="valid_to"
+                      v-validate="'required'"
+                      :disabled-date="notBeforeStartDate"
+                      placeholder="End Date"
+                      :disabled="!voucher.valid_from"
+                    ></date-picker>
+                    <i v-show="errors.has('valid_to')"></i><br />
+                    <span v-show="errors.has('valid_to')" class="help is-info"
+                      >Please select end date</span
+                    >
+                  </div>
+                  <div class="col-lg-3 mb-3">
+                    <label for>
+                      {{ $lang.messages.validity }}
+                      <span class="text-danger">*</span>
+                    </label>
+                    <input
+                      name="validity"
+                      v-model="voucher.validity"
+                      v-validate="'required|numeric'"
+                      class="form-control"
+                      :class="{ input: true, 'is-info': errors.has('validity') }"
+                      type="text"
+                      v-bind:placeholder="$lang.messages.validity"
+                    />
+                    <i v-show="errors.has('validity')"></i>
+                    <span v-show="errors.has('validity')" class="help is-info">{{
+                      $lang.messages.please_enter_valid_validity
+                    }}</span>
                   </div>
                 </div>
               </div>
@@ -213,48 +294,6 @@
         </div>
       </div>
     </div>
-    <div
-      class="modal fade"
-      id="Delete"
-      tabindex="-1"
-      role="dialog"
-      aria-labelledby="Delete"
-      aria-hidden="true"
-      style="pointer-events: none"
-    >
-      <div class="modal-dialog modal-dialog-centered modal-md" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title font-22">Delete</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <img src="/static/img/close.svg" width="20" />
-            </button>
-          </div>
-          <div class="modal-body form-style pb-0 px-lg-5">
-            <div class="row justify-content-center">
-              <div class="col-lg-12 mb-0 text-center">
-                <img src="/static/img/reject.png" width="50" class="mb-4" />
-                <h3>Are you Sure, You want to delete ?</h3>
-              </div>
-            </div>
-          </div>
-          <div class="modal-footer border-0 justify-content-center">
-            <button type="button" class="btn btn-brand-01" @click="removeRecord()">
-              Save
-            </button>
-            <button
-              type="button"
-              data-dismiss="modal"
-              class="btn btn-outline-primary"
-              hidden="true"
-              id="delete-btn"
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 <script>
@@ -263,7 +302,6 @@ import DatePicker from "vue2-datepicker";
 import "vue2-datepicker/index.css";
 import Multiselect from "vue-multiselect";
 import moment from "moment";
-import { category } from "../../../lang/en/messages";
 export default {
   name: "AddVoucher",
   components: { DatePicker, Multiselect },
@@ -272,16 +310,41 @@ export default {
       action: "",
       cat_select_box: [],
       voucher: {
+        title: "",
         buy_points: "",
         description: "",
         discount_type: "PERCENTAGE",
         type: "CATEGORY",
         category_id: "",
+        validity: "",
         image: "",
+        valid_from: "",
+        valid_to: "",
       },
     };
   },
   methods: {
+    notBeforeDate(date) {
+      var current_date = new Date();
+      return date < current_date.setDate(current_date.getDate() - 1);
+    },
+
+    notBeforeStartDate(date) {
+      var current_date = new Date();
+      var range =
+        date < this.voucher.valid_from.setDate(this.voucher.valid_from.getDate()) ||
+        date < current_date.setDate(current_date.getDate() - 1);
+      return range;
+    },
+
+    checkEndate() {
+      var current_date = new Date();
+      if (this.voucher.valid_from < current_date.setDate(current_date.getDate() - 1)) {
+        this.voucher.valid_from = "";
+      }
+      this.voucher.valid_to = "";
+    },
+
     validateBeforeSubmit() {
       this.$validator.validateAll().then((result) => {
         if (result) {
@@ -300,58 +363,17 @@ export default {
       });
     },
 
-    // saveItem() {
-    //   if (this.type == "FLAVOUR") {
-    //     if (this.innerType == "ADD") {
-    //       this.flavourList.push(this.typeObj);
-    //     } else {
-    //       this.flavourList[this.index] = this.typeObj;
-    //       this.$set(this.flavourList, this.index, this.flavourList[this.index]);
-    //     }
-    //   }
-    //   if (this.type == "TOPPING") {
-    //     if (this.innerType == "ADD") {
-    //       this.toppingList.push(this.typeObj);
-    //     } else {
-    //       this.toppingList[this.index] = this.typeObj;
-    //       this.$set(this.toppingList, this.index, this.toppingList[this.index]);
-    //     }
-    //   }
-    //   if (this.type == "TEMPERATURE") {
-    //     if (this.innerType == "ADD") {
-    //       this.temperatureList.push(this.typeObj);
-    //     } else {
-    //       this.temperatureList[this.index] = this.typeObj;
-    //       this.$set(this.temperatureList, this.index, this.temperatureList[this.index]);
-    //     }
-    //   }
-    //   $("#addItem").modal("hide");
-    // },
-    // removeItem(index, type) {
-    //   this.type = type;
-    //   this.index = index;
-    //   $("#Delete").modal("show");
-    // },
-    // removeRecord() {
-    //   if (this.type == "FLAVOUR") {
-    //     this.flavourList.splice(this.index, 1);
-    //   }
-    //   if (this.type == "TOPPING") {
-    //     this.toppingList.splice(this.index, 1);
-    //   }
-    //   if (this.type == "TEMPERATURE") {
-    //     this.temperatureList.splice(this.index, 1);
-    //   }
-    //   $("#Delete").modal("hide");
-    // },
     save() {
-      this.voucher.flavours = this.flavourList;
-      this.voucher.toppings = this.toppingList;
-      this.voucher.tempratures = this.temperatureList;
+      var valid_from = moment(String(this.voucher.valid_from)).format("Y-MM-DD");
+      var valid_to = moment(String(this.voucher.valid_to)).format("Y-MM-DD");
+
+      this.voucher.valid_from = valid_from;
+      this.voucher.valid_to = valid_to;
+
       if (this.voucher.uuid) {
         this.$api
           .putAPI({
-            _action: "item/info/" + this.voucher.uuid,
+            _action: "/voucher/" + this.voucher.uuid,
             _body: this.voucher,
             _buttonId: "save-btn",
             _hide_loader: true,
@@ -374,7 +396,7 @@ export default {
       } else {
         this.$api
           .postAPI({
-            _action: "item",
+            _action: "voucher",
             _body: this.voucher,
             _buttonId: "save-btn",
             _hide_loader: true,
@@ -416,7 +438,7 @@ export default {
     uploadFile() {
       this.$api
         .uploadImageAPI({
-          _action: "/item/image/" + this.voucher.id,
+          _action: "/voucher/image/" + this.voucher.uuid,
           _key: "image",
           _file: this.file,
           _body: this.voucher,
@@ -441,22 +463,13 @@ export default {
     getDetail() {
       this.$api
         .getAPI({
-          _action: "/items/" + this.voucher.uuid,
+          _action: "/voucher/info/" + this.voucher.uuid,
         })
         .then((res) => {
           this.voucher = res.info;
 
-          for (var i = 0; i < this.voucher.options.length; i++) {
-            if (this.voucher.options[i].title == "FLAVOUR") {
-              this.flavourList = this.voucher.options[i].values;
-            }
-            if (this.voucher.options[i].title == "TOPPINGS") {
-              this.toppingList = this.voucher.options[i].values;
-            }
-            if (this.voucher.options[i].title == "TEMPRATURES") {
-              this.temperatureList = this.voucher.options[i].values;
-            }
-          }
+          this.voucher.valid_from = new Date(this.voucher.valid_from);
+          this.voucher.valid_to = new Date(this.voucher.valid_to);
         })
         .catch((e) => {
           this.$noty.error("" + e.message, {
@@ -481,25 +494,6 @@ export default {
             theme: "semanticui",
           });
         });
-    },
-
-    editItem(index, data, type) {
-      this.innerType = "EDIT";
-      this.type = type;
-      this.index = index;
-      var temp = JSON.stringify(data);
-      var parse_data = JSON.parse(temp);
-      this.typeObj = {};
-      this.typeObj.title = parse_data.title;
-      this.typeObj.price = parse_data.price;
-      $("#addItem").modal("show");
-    },
-
-    addItem(type) {
-      this.innerType = "ADD";
-      this.type = type;
-      this.typeObj = {};
-      $("#addItem").modal("show");
     },
   },
   mounted() {

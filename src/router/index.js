@@ -206,7 +206,7 @@ let router = new Router({
           }
         },
         {
-          path: "/edit-customer",
+          path: "/edit-customer/:id",
           name: "EditCustomer",
           component: () => import("@/views/Customers/addEditCustomer"),
           meta: {

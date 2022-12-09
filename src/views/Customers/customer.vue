@@ -103,7 +103,7 @@
                     <button
                       type="button"
                       class="btn btn-outline-info btn-sm"
-                      @click="editCustomer(item.uuid)"
+                      @click="editCustomer(item.id)"
                     >
                       {{ $lang.messages.edit }}
                     </button>
